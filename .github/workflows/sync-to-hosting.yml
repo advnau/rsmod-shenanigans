@@ -35,8 +35,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # add all files
+          git add .
+          
           if ! git diff --quiet; then
-            git add maven
+
             git commit -m "Sync artifacts from ${GITHUB_REPOSITORY}@${GITHUB_SHA}"
             git push
           else
