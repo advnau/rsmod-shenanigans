@@ -1,6 +1,7 @@
 name: Sync artifacts to hosting repo
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main            # or whatever default branch you use
