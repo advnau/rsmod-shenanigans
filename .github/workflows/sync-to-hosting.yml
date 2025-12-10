@@ -1,0 +1,43 @@
+name: Sync artifacts to hosting repo
+
+on:
+  push:
+    branches:
+      - main            # or whatever default branch you use
+    paths:
+      - 'artifacts/**'  # only run when artifacts change (optional but nice)
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v4
+
+      - name: Checkout hosting repo
+        uses: actions/checkout@v4
+        with:
+          repository: MatthewBishop/hosting          # <- change to org/repo name
+          path: hosting
+          token: ${{ secrets.HOSTING_PUSH_TOKEN }}
+
+      - name: Sync artifacts into hosting repo
+        run: |
+          # copies from artifacts into hosting
+          rsync -a artifacts/ hosting/
+
+          cd hosting
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if ! git diff --quiet; then
+            git add maven
+            git commit -m "Sync artifacts from ${GITHUB_REPOSITORY}@${GITHUB_SHA}"
+            git push
+          else
+            echo "No changes to commit in hosting repo."
+          fi
